@@ -374,4 +374,4 @@ print -- "$LINE1─$FILL_SPACES─$USER_P"
 }
 
 #PROMPT='${PROMPT_LINE}%B%F{green}:%f%b${PR_PWDCOLOR}%~${PR_RESET}${vcs_info_msg_0_}%(!.%B%F{red}%#%f%b.%B%F{green}➤%f%b) '
-PROMPT='%B%F{blue}└─(%f%b%F{yellow}%D{%R} \$%f%B%F{blue})─> %f%b%F{green}'
+PROMPT='%B%F{blue}└─[%f%b%F{yellow}%D{%R} \$%f%B%F{blue}${vcs_info_msg_0_}%f%B%F{blue}]─> %f%b%F{green}'
