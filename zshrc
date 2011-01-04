@@ -18,6 +18,7 @@ SAVEHIST=1000
 WORDCHARS="${WORDCHARS:s#/#}"
 WORDCHARS="${WORDCHARS:s#.#}"
 export EDITOR=$(which vim)
+export CLICOLOR=1
 ##############################################################
 #key binding stuff to get the right keys to work
 # key bindings
@@ -115,7 +116,7 @@ zstyle ':completion:*:*:kill:*' menu yes select
 zstyle ':completion:*:kill:*'   force-list always
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 
-CDPATH=.:~:/usr/local/dev/git:/usr/local/dev/git/puppet-cfg:/usr/local/dev/git/puppet-cfg/modules/
+CDPATH=.:~:~/git
 PATH=$PATH:~/bin
 
 #I want my umask 0002 if I'm not root
@@ -128,13 +129,13 @@ fi
 
 
 #setup ~/.dir_colors if one doesn\'t exist
-if [ ! -s ~/.dir_colors ]; then
-    dircolors -p > ~/.dir_colors
-fi
-eval `dircolors ~/.dir_colors`
+#if [ ! -s ~/.dir_colors ]; then
+#    dircolors -p > ~/.dir_colors
+#fi
+#eval `dircolors ~/.dir_colors`
 
 #aliases
-alias ls='ls --color=auto'
+alias ls='ls -G'
 alias dir='dir --color=auto --format=vertical'
 alias vdir='vdir --color=auto --format=long'
 alias sl='ls -lah'
@@ -297,7 +298,7 @@ if [[ -n $SSH_CONNECTION ]]; then
 
 fi
 
-HASH_NUM=$(echo $HOSTNAME | md5sum | tr -d 'a-f' | cut -b 1-6)
+HASH_NUM=$(echo $HOSTNAME | openssl md5 | tr -d 'a-f' | cut -b 1-6)
 HASH_MOD=$(($HASH_NUM % 6 + 2)) 
 
 
@@ -358,8 +359,8 @@ precmd(){
 #
 #LINE1_PROMPT="\
 #${PR_BRIGHT_YELLOW}%D{%R.%S %a %b %d %Y}${PR_RESET}\
-LINE1_PROMPT="%B%F{blue}┌─[%f%b%F{yellow}%d %D{%a, %b %d %y}%f%B%F{blue}]"
-USER_HOST="[%f%b%F{yellow}%n@%m%f%B%F{blue}]─┐%f%b"
+LINE1_PROMPT="%B%F{blue}[%f%b%F{yellow}%d %D{%a, %b %d %y}%f%B%F{blue}]"
+USER_HOST="[%f%b%F{yellow}%n@%m%f%B%F{blue}]%f%b"
 
 local TERMWIDTH
 (( TERMWIDTH = ${COLUMNS} - 2 ))
