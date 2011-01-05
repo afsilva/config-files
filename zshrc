@@ -359,7 +359,7 @@ precmd(){
 #
 #LINE1_PROMPT="\
 #${PR_BRIGHT_YELLOW}%D{%R.%S %a %b %d %Y}${PR_RESET}\
-LINE1_PROMPT="%B%F{blue}[%f%b%F{yellow}%d %D{%a, %b %d %y}%f%B%F{blue}]"
+LINE1_PROMPT="%B%F{blue}┌─[%f%b%F{yellow}%d %D{%a, %b %d %y}%f%B%F{blue}]─┐"
 USER_HOST="[%f%b%F{yellow}%n@%m%f%B%F{blue}]%f%b"
 
 local TERMWIDTH
