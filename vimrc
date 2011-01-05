@@ -21,7 +21,7 @@ set pastetoggle=<F9>
 nnoremap <CR> :noh<CR> 
 "Disable beep
 set vb
-set paste
+" set paste
 
 set so=30
 " set cursorline
@@ -42,13 +42,6 @@ vmap <silent> <C-k> :m'<-2<CR>gv=gv
 
 "jump to last position
 au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
-"augroup xiphias
-"	autocmd!
-"	au BufRead *.xml so /home/mwoodson/.vim/maps_r3.vim
-"	au BufRead *.xml so /home/mwoodson/.vim/import.vim
-"	au BufRead *.xml so /home/mwoodson/.vim/make.vim
-"	map <F12> vat<Esc>`<df>`>F<df>
-"augroup END
 
 set laststatus=2
 set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
