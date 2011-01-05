@@ -18,7 +18,7 @@ SAVEHIST=1000
 WORDCHARS="${WORDCHARS:s#/#}"
 WORDCHARS="${WORDCHARS:s#.#}"
 export EDITOR=$(which vim)
-export CLICOLOR=1
+#export CLICOLOR=1
 ##############################################################
 #key binding stuff to get the right keys to work
 # key bindings
@@ -129,13 +129,13 @@ fi
 
 
 #setup ~/.dir_colors if one doesn\'t exist
-#if [ ! -s ~/.dir_colors ]; then
-#    dircolors -p > ~/.dir_colors
-#fi
-#eval `dircolors ~/.dir_colors`
+if [ ! -s ~/.dir_colors ]; then
+    dircolors -p > ~/.dir_colors
+fi
+eval `dircolors ~/.dir_colors`
 
 #aliases
-alias ls='ls -G'
+alias ls='ls --color=auto'
 alias dir='dir --color=auto --format=vertical'
 alias vdir='vdir --color=auto --format=long'
 alias sl='ls -lah'
@@ -359,7 +359,13 @@ precmd(){
 #
 #LINE1_PROMPT="\
 #${PR_BRIGHT_YELLOW}%D{%R.%S %a %b %d %Y}${PR_RESET}\
-LINE1_PROMPT="%B%F{blue}┌─[%f%b%F{yellow}%d %D{%a, %b %d %y}%f%B%F{blue}]"
+
+if [[ $TERM == "screen" ]]; then
+    LINE1_PROMPT="%B%F{blue}┌─[%f%b%F{yellow}%d%f%B%F{blue}]"
+else
+    LINE1_PROMPT="%B%F{blue}┌─[%f%b%F{yellow}%d %D{%a, %b %d %y}%f%B%F{blue}]"
+fi
+
 USER_HOST="[%f%b%F{yellow}%n@%m%f%B%F{blue}]─┐%f%b"
 
 local TERMWIDTH
@@ -374,4 +380,8 @@ print -- "$LINE1─$FILL_SPACES─$USER_P"
 }
 
 #PROMPT='${PROMPT_LINE}%B%F{green}:%f%b${PR_PWDCOLOR}%~${PR_RESET}${vcs_info_msg_0_}%(!.%B%F{red}%#%f%b.%B%F{green}➤%f%b) '
-PROMPT='%B%F{blue}└─[%f%b%F{yellow}%D{%R} \$%f%B%F{blue}${vcs_info_msg_0_}%B%F{blue}]─> %f%b%F{green}'
+if [[ $TERM == "screen" ]]; then
+    PROMPT='%B%F{blue}└─[%f%b%F{yellow} \$%f%B%F{blue}${vcs_info_msg_0_}%B%F{blue} ]─> %f%b%F{green}'
+else
+    PROMPT='%B%F{blue}└─[%f%b%F{yellow}%D{%R} \$%f%B%F{blue}${vcs_info_msg_0_}%B%F{blue}]─> %f%b%F{green}'
+fi
