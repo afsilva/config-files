@@ -1,0 +1,9 @@
+IFS=$'\n'
+git diff --name-only HEAD^ HEAD |
+while read file; do
+    echo "copying $file as .$file to ~"
+    if [[ -f ~/.$file ]] ; then
+       cp ~/".$file" ~/".$file.old"
+    fi
+    cp  "$file" ~/".$file" || exit $?
+done
