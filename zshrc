@@ -298,7 +298,9 @@ if [[ -n $SSH_CONNECTION ]]; then
 
 fi
 
-HASH_NUM=$(echo $HOSTNAME | openssl md5 | tr -d 'a-f' | cut -b 1-6)
+#output of openssl md5 changed on Fedora 36, making the extractation of the hash more generic
+#HASH_NUM=$(echo $HOSTNAME | openssl md5 | tr -d 'a-f' | cut -b 1-6)
+HASH_NUM=$(echo $HOSTNAME | openssl md5 | cut -d' ' -f2 | cut -b 1-6)
 HASH_MOD=$(($HASH_NUM % 6 + 2)) 
 
 
