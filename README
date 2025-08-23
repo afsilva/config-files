@@ -1,3 +1,7 @@
-fix VPN selinux:
+- fix VPN selinux:
 
 grep openvpn /var/log/audit/audit.log | audit2allow -M openvpn
+
+- EasyEffects Effects:
+
+autogain, bass enhancer, stereo tools (0.3), exciter, convolver (see wav files), limiter
