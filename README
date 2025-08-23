@@ -1,0 +1,3 @@
+fix VPN selinux:
+
+grep openvpn /var/log/audit/audit.log | audit2allow -M openvpn
