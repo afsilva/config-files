@@ -1,141 +1,246 @@
 # Zsh Configuration Guide
 
-This `.zshrc` file configures your interactive Zsh shell environment.
+This file documents the accompanying `zshrc` in this directory. The config is focused on an interactive shell with large shared history, convenient key bindings, richer completion, a two-line prompt, and a small set of aliases/functions.
 
-## Overview
+## Startup Defaults
 
-- **History**: 50,000 commands with timestamps and deduplication
-- **Auto CD**: Navigate directories without typing `cd`
-- **Smart Completion**: Case-insensitive, typo-tolerant tab completion
+- Stores history in `${ZDOTDIR:-$HOME}/.histfile`.
+- Keeps 50,000 commands in memory and saves 50,000 commands on disk.
+- Treats `/` and `.` as word separators for word-motion editing.
+- Uses `vim` as the default editor unless `EDITOR` is already set.
+- Enables colored `ls` output with `CLICOLOR=1`.
+- Adds `$HOME/bin` to `path`.
+- Sets `cdpath` to the current directory, `$HOME`, and `$HOME/git`.
+- Uses `umask 0022` for root and `umask 0002` for non-root users.
 
----
+## Shell Options
 
-## Shell Features
+The config enables these common interactive behaviors:
 
-### Key Bindings
-- Arrow keys, Home/End work correctly in all terminals
-- Ctrl+Left/Right: Move word by word
-- Alt+Left/Right: Move word by word  
-- Ctrl+Backspace: Delete entire words
+- `append_history`, `inc_append_history`, `share_history`: keep history current across shells.
+- `hist_ignore_dups`, `hist_ignore_space`: skip duplicate commands and commands that start with a space.
+- `auto_cd`: enter a directory by typing its path.
+- `auto_list`, `auto_menu`, `complete_in_word`: make tab completion more helpful and allow completion in the middle of words.
+- `extended_glob`: enable Zsh's extended glob patterns.
+- `no_beep`, `no_nomatch`: avoid terminal beeps and leave unmatched globs unchanged.
+- `notify`: report background job status immediately.
+- `prompt_subst`: allow command and parameter expansion inside prompts.
 
-### Auto-Completion
-- Tab completes commands, files, and directories
-- Fuzzy matching allows typos (e.g., `g status` → `git status`)
-- Case-insensitive matching
+## Key Bindings
 
----
+The shell uses Emacs-style line editing with `bindkey -e`.
 
-## Quick Reference: Aliases
+| Keys | Action |
+| --- | --- |
+| Home / End | Move to beginning or end of line |
+| Page Up / Page Down | Move to beginning or end of history |
+| Delete | Delete character under the cursor |
+| Insert | Toggle overwrite mode |
+| Ctrl+Right / Ctrl+Left | Move forward or backward one word |
+| Alt+Right / Alt+Left | Move forward or backward one word |
+| Tab | Complete from the current cursor position |
 
-### File Operations
-| Alias | Description |
-|-------|-------------|
-| `ll` | Long listing, hidden files, directories first |
-| `la` | Show hidden files |
-| `lS` | Sort by size (largest first) |
-| `lt` | Sort by time (newest first) |
-| `lx` | Sort by file extension |
-| `..`, `...`, `....` | Navigate up 1, 2, or 3 directories |
+Extra Home/End bindings are included for rxvt, xterm variants, and FreeBSD console escape sequences.
 
-### Search & System
-| Alias | Description |
-|-------|-------------|
-| `grep`, `egrep` | Colored output |
-| `ps` | Full process listing (`ps -ef`) |
-| `dfh` | Disk free, human-readable |
-| `duh` | Disk usage, summary |
+## Completion
 
-### Git
-| Alias | Description |
-|-------|-------------|
-| `gs` | Status |
-| `gd` | Diff (working tree) |
-| `gdf` | Diff (staged) |
-| `gp`, `gl` | Push / Pull |
+Completion is initialized with `compinit` and a cached dump file under:
 
----
-
-## Custom Functions
-
-### `g`
-Show last 20 commits in a visual graph:
-```bash
-g    # git log --oneline --graph --decorate -20
+```zsh
+${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}
 ```
 
-### `httpd [port]`
-Quick HTTP server:
-```bash
-httpd        # Serve on port 8000
-httpd 3000   # Serve on port 3000
+Notable completion behavior:
+
+- Tries existing lists, expansion, command rehashing, normal completion, and approximate correction.
+- Rehashes commands automatically when completing the first word of a command.
+- Allows approximate matches, roughly one error for every three typed characters.
+- Matches uppercase letters from lowercase input.
+- Groups and describes matches with verbose completion output.
+- Uses `$LS_COLORS` for completion colors when available.
+- Ignores backup files as executable command completions.
+- Ignores completion functions beginning with `_` when completing normal commands.
+- Uses a completion cache in `${XDG_CACHE_HOME:-$HOME/.cache}/zsh`.
+- Avoids offering the current directory or parent as `cd` completions.
+- Uses selectable menus for completion lists, directory stack completion, manual pages, and process killing.
+
+Manual page completion is configured to separate and insert manual sections, so `man printf<Tab>` can distinguish between different sections when available.
+
+## Aliases
+
+### Listing Files
+
+| Alias | Command |
+| --- | --- |
+| `ls` | `ls -G` |
+| `sl` | `ls -lah` |
+| `l` | `ls -lah` |
+| `d` | `ls -lhX` |
+| `ll` | `ls -lhX` |
+| `la` | `ls -A` |
+| `ldir` | `ls -lhA | grep '^d'` |
+| `lfiles` | `ls -lhA | grep "^-"` |
+
+### Search and Editing
+
+| Alias | Command |
+| --- | --- |
+| `grep` | `grep --color=auto` |
+| `egrep` | `grep -E --color=auto` |
+| `fgrep` | `grep -F --color=auto` |
+| `vi` | `$EDITOR` |
+
+### Navigation
+
+| Alias | Command |
+| --- | --- |
+| `-` | `cd -` |
+| `...` | `../..` |
+| `....` | `../../..` |
+| `.....` | `../../../..` |
+
+### Global Aliases
+
+These can expand anywhere in a command line:
+
+| Alias | Expands to |
+| --- | --- |
+| `X` | `| xargs` |
+| `G` | `| grep -E` |
+
+Example:
+
+```zsh
+ls G '\.txt$'
 ```
 
-### `dus [count]`
-Show largest directories:
-```bash
-dus         # Top 10 by size
-dus 5       # Top 5 by size
+expands to:
+
+```zsh
+ls | grep -E '\.txt$'
 ```
 
-### `clean-orig`
-Remove `*.orig` backup files:
-```bash
-clean-orig
+## Functions
+
+### `lss PATTERN`
+
+Lists files by modification time and filters the output with `grep`.
+
+```zsh
+lss report
 ```
 
----
+Runs:
 
-## Prompt Display
+```zsh
+ls -lrt | grep -- report
+```
 
-**Left side:** `user@host /path/to/dir $`
-- Blue: username @ hostname
-- Green/Red: current path (relative to home)
-- Red path indicates previous command failed
+### `pss PATTERN`
 
-**Right side:** `2024-01-15 10:30:45 0 main`
-- Date and time
-- Exit code of last command (0 = success)
-- Git branch name (if in a repository)
+Lists processes and filters the output with `grep`.
 
----
+```zsh
+pss ssh
+```
 
-## Applying Changes
+Runs:
 
-After editing `.zshrc`, reload it:
-```bash
+```zsh
+ps -ef | grep -- ssh
+```
+
+### `ducks`
+
+Shows the 16 largest visible and hidden items in the current directory. It first sorts entries by size in KiB, then prints human-readable sizes for the largest matches.
+
+```zsh
+ducks
+```
+
+### `show-colors`
+
+Prints a 256-color terminal palette with color indexes.
+
+```zsh
+show-colors
+```
+
+## Prompt
+
+The prompt uses Zsh color support plus `vcs_info` for Git branch information.
+
+### First Line
+
+Before each prompt, `precmd` prints a full-width status line.
+
+Outside `screen`, it contains:
+
+```text
+[current-directory day, month date year]...[user@host]
+```
+
+Inside `screen`, it omits the date and prints:
+
+```text
+[current-directory]...[user@host]
+```
+
+The line uses blue brackets and yellow content, with box-drawing characters filling the space between the path/date and `user@host`.
+
+### Prompt Line
+
+Outside `screen`, the prompt includes the current time, a literal `$`, and Git status:
+
+```text
+└─[HH:MM $ git:(branch)]─>
+```
+
+Inside `screen`, the time is omitted:
+
+```text
+└─[ $ git:(branch)]─>
+```
+
+The prompt text color switches to green after the arrow, so typed commands appear green.
+
+### Git Information
+
+`vcs_info` is enabled for Git. When inside a Git repository, the prompt shows:
+
+```text
+ git:(branch)
+```
+
+During Git actions such as rebases or merges, the action is included:
+
+```text
+ git:(branch|action)
+```
+
+The config defines staged and unstaged markers, but change checking is currently disabled with:
+
+```zsh
+zstyle ':vcs_info:*:prompt:*' check-for-changes false
+```
+
+Because of that, branch names are shown without the `+` or `*` dirty-state markers.
+
+## Terminal Titles
+
+For xterm-like terminals, `preexec` updates the window title before each command:
+
+- SSH commands set the title to the remote host plus the current directory.
+- Other commands set the title to `user@host:current-directory`.
+
+For `screen`, SSH commands update the screen window title using a shortened form of the remote host. A `precmd` hook named `set_screen_title` resets the screen title to the local host before each prompt.
+
+## Reloading
+
+After editing the installed `.zshrc`, reload it with:
+
+```zsh
 source ~/.zshrc
 ```
 
-Or restart your terminal.
-
----
-
-## Customization Tips
-
-### Add to PATH
-```bash
-export PATH="$HOME/mybin:$PATH"
-```
-
-### Add new alias
-```bash
-alias mycmd='actual command here'
-```
-
-### Add new function
-```bash
-myfunc() {
-    # your code here
-}
-```
-
-### Change prompt colors
-Edit the `PROMPT` and `RPS1` variables. Color format: `%F{color}`
-
----
-
-## Git Branch in Prompt
-
-The prompt automatically shows your current git branch on the right side when you're inside a git repository. This is powered by Zsh's `vcs_info` module.
-
-No action needed — it just works!
+or start a new shell.
